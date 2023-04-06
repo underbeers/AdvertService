@@ -8,9 +8,9 @@ import (
 
 type UpdateAdvertInput struct {
 	Id          *int       `json:"id" db:"id"`
-	PetCardId   *int       `json:"petCardID" db:"pet_card_id" binding:"required"`
-	UserId      *uuid.UUID `json:"userID" db:"user_id" binding:"required"`
-	Price       *int       `json:"price" db:"price" binding:"required"`
+	PetCardId   *int       `json:"petCardID" db:"pet_card_id"`
+	UserId      *uuid.UUID `json:"userID" db:"user_id"`
+	Price       *int       `json:"price" db:"price"`
 	Description *string    `json:"description" db:"description"`
 	Region      *string    `json:"region" db:"region"`
 	Locality    *string    `json:"locality" db:"locality"`

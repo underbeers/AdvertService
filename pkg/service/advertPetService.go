@@ -26,6 +26,8 @@ func (s *AdvertPetService) Delete(id int) error {
 }
 
 func (s *AdvertPetService) Update(id int, input models.UpdateAdvertInput) error {
-	//TODO implement me
-	panic("implement me")
+	if err := input.Validate(); err != nil {
+		return err
+	}
+	return s.repo.Update(id, input)
 }

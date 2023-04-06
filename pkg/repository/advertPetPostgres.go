@@ -3,7 +3,9 @@ package repository
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 	"github.com/underbeers/AdvertService/pkg/models"
+	"strings"
 	"time"
 )
 
@@ -61,8 +63,75 @@ func (a AdvertPetPostgres) Delete(id int) error {
 }
 
 func (a AdvertPetPostgres) Update(id int, input models.UpdateAdvertInput) error {
-	//TODO implement me
-	panic("implement me")
+	setValues := make([]string, 0)
+	args := make([]interface{}, 0)
+	argId := 1
+
+	if input.PetCardId != nil {
+		setValues = append(setValues, fmt.Sprintf("pet_card_id=$%d", argId))
+		args = append(args, *input.PetCardId)
+		argId++
+	}
+
+	if input.UserId != nil {
+		setValues = append(setValues, fmt.Sprintf("user_id=$%d", argId))
+		args = append(args, *input.UserId)
+		argId++
+	}
+
+	if input.Price != nil {
+		setValues = append(setValues, fmt.Sprintf("price=$%d", argId))
+		args = append(args, *input.Price)
+		argId++
+	}
+
+	if input.Description != nil {
+		setValues = append(setValues, fmt.Sprintf("description=$%d", argId))
+		args = append(args, *input.Description)
+		argId++
+	}
+
+	if input.Region != nil {
+		setValues = append(setValues, fmt.Sprintf("region=$%d", argId))
+		args = append(args, *input.Region)
+		argId++
+	}
+
+	if input.Locality != nil {
+		setValues = append(setValues, fmt.Sprintf("locality=$%d", argId))
+		args = append(args, *input.Locality)
+		argId++
+	}
+
+	if input.Chat != nil {
+		setValues = append(setValues, fmt.Sprintf("chat=$%d", argId))
+		args = append(args, *input.Chat)
+		argId++
+	}
+
+	if input.Phone != nil {
+		setValues = append(setValues, fmt.Sprintf("phone=$%d", argId))
+		args = append(args, *input.Phone)
+		argId++
+	}
+
+	if input.Status != nil {
+		setValues = append(setValues, fmt.Sprintf("status=$%d", argId))
+		args = append(args, *input.Status)
+		argId++
+	}
+
+	setQuery := strings.Join(setValues, ", ")
+	query := fmt.Sprintf("UPDATE %s ap SET %s WHERE ap.id = $%d",
+		advertPetTable, setQuery, argId)
+	args = append(args, id)
+
+	logrus.Debugf("updateQuery: %s", query)
+	logrus.Debugf("args: %s", args)
+
+	_, err := a.db.Exec(query, args...)
+	return err
+
 }
 
 func NewAdvertPetPostgres(db *sqlx.DB) *AdvertPetPostgres {
