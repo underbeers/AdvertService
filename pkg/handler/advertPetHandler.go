@@ -6,7 +6,21 @@ import (
 	"github.com/underbeers/AdvertService/pkg/models"
 	"net/http"
 	"strconv"
+	"strings"
 )
+
+func descriptionFilter(s string) string {
+	s = strings.ToLower(s)
+	words := strings.Fields(s)
+	for i := 0; i < len(words); i++ {
+		for j := 0; j < len(banWords); j++ {
+			if words[i] == banWords[j] {
+				return "Не прошло модерацию"
+			}
+		}
+	}
+	return "Опубликовано"
+}
 
 func (h *Handler) createNewAdvert(c *gin.Context) {
 
@@ -31,7 +45,7 @@ func (h *Handler) createNewAdvert(c *gin.Context) {
 
 	input.UserId = id
 
-	input.Status = "На модерации"
+	input.Status = descriptionFilter(input.Description)
 
 	err = h.services.AdvertPet.Create(input)
 	if err != nil {
