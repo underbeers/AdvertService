@@ -21,6 +21,10 @@ func (s *AdvertPetService) GetAll(filter models.AdvertPetFilter) ([]models.Adver
 	return s.repo.GetAll(filter)
 }
 
+func (s *AdvertPetService) ChangeStatus(id int, status string) error {
+	return s.repo.ChangeStatus(id, status)
+}
+
 func (s *AdvertPetService) Delete(id int) error {
 	return s.repo.Delete(id)
 }

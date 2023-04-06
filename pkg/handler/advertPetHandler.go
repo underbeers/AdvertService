@@ -9,6 +9,12 @@ import (
 	"strings"
 )
 
+const (
+	moderationFailed = "Не прошло модерацию"
+	archived         = "В архиве"
+	published        = "Опубликовано"
+)
+
 func descriptionFilter(s string) string {
 	s = strings.ToLower(s)
 	words := strings.Fields(s)
@@ -114,11 +120,11 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 
 		switch query.Get("status") {
 		case "moderationFailed":
-			filter.Status = "Не прошло модерацию"
+			filter.Status = moderationFailed
 		case "archived":
-			filter.Status = "В архиве"
+			filter.Status = archived
 		case "published":
-			filter.Status = "Опубликовано"
+			filter.Status = published
 		default:
 			filter.Status = ""
 		}
@@ -137,6 +143,60 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, advertPetList)
+}
+
+func (h *Handler) changeStatus(c *gin.Context) {
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	/*Проверка, что такой advert pet id существует*/
+	advertPet, err := h.services.AdvertPet.GetAll(models.AdvertPetFilter{AdvertPetId: id})
+	if len(advertPet) != 1 || err != nil {
+		c.JSON(http.StatusBadRequest, statusResponse{"incorrect advert pet id"})
+		return
+	}
+
+	//userID := c.Request.Header.Get("userID")
+	userID := "5cd754f9-d1aa-4b58-abc9-4d106be4d475"
+	if len(userID) == 0 {
+		c.JSON(http.StatusBadRequest, statusResponse{"invalid access token"})
+		return
+	}
+
+	parseUserID, err := uuid.Parse(userID)
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid user id param")
+		return
+	}
+
+	/*Проверка на то, что id из токена совпадает с id владельца объявления*/
+	if advertPet[0].UserId != parseUserID {
+		newErrorResponse(c, http.StatusBadRequest, "not enough permissions to change status")
+		return
+	}
+
+	status := ""
+
+	if advertPet[0].Status == archived {
+		status = published
+	} else if advertPet[0].Status == published {
+		status = archived
+	} else {
+		newErrorResponse(c, http.StatusBadRequest, "Can't change status because ad moderation failed")
+		return
+	}
+
+	if err := h.services.AdvertPet.ChangeStatus(id, status); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{"ok"})
+
 }
 
 func (h *Handler) updateAdvert(c *gin.Context) {

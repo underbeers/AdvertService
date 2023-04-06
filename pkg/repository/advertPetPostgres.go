@@ -89,6 +89,15 @@ func (a AdvertPetPostgres) GetAll(filter models.AdvertPetFilter) ([]models.Adver
 	return lists, err
 }
 
+func (a AdvertPetPostgres) ChangeStatus(id int, status string) error {
+
+	query := fmt.Sprintf("UPDATE %s ap SET status = '%s' WHERE ap.id = %d",
+		advertPetTable, status, id)
+	_, err := a.db.Exec(query)
+	
+	return err
+}
+
 func (a AdvertPetPostgres) Delete(id int) error {
 	query := fmt.Sprintf("DELETE FROM %s ap WHERE ap.id = $1",
 		advertPetTable)

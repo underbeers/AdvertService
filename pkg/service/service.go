@@ -9,6 +9,7 @@ import (
 type AdvertPet interface {
 	Create(advertPet models.AdvertPet) error
 	GetAll(filter models.AdvertPetFilter) ([]models.AdvertPet, error)
+	ChangeStatus(id int, status string) error
 	Delete(id int) error
 	Update(id int, input models.UpdateAdvertInput) error
 }
