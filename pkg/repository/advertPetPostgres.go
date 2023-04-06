@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 	"github.com/underbeers/AdvertService/pkg/models"
@@ -40,9 +41,43 @@ func createAdvertPetQuery(filter models.AdvertPetFilter) string {
 		"ap.locality, ap.chat, ap.phone, ap.status, ap.publication FROM %s ap ",
 		advertPetTable)
 
-	if filter.AdvertPetId != 0 {
-		query += fmt.Sprintf("WHERE ap.id = %d", filter.AdvertPetId)
+	if filter.AdvertPetId != 0 || filter.UserId != uuid.Nil || filter.Region != "" || filter.Locality != "" ||
+		filter.Status != "" || filter.MinPrice != 0 || filter.MaxPrice != 0 {
+
+		query += "WHERE "
+		setValues := make([]string, 0)
+
+		if filter.AdvertPetId != 0 {
+			setValues = append(setValues, fmt.Sprintf("ap.id = %d", filter.AdvertPetId))
+		}
+
+		if filter.UserId != uuid.Nil {
+			setValues = append(setValues, fmt.Sprintf("ap.user_id = '%s'", filter.UserId.String()))
+		}
+
+		if filter.MinPrice != 0 {
+			setValues = append(setValues, fmt.Sprintf("ap.price >= %d", filter.MinPrice))
+		}
+
+		if filter.MaxPrice != 0 {
+			setValues = append(setValues, fmt.Sprintf("ap.price <= %d", filter.MaxPrice))
+		}
+
+		if filter.Region != "" {
+			setValues = append(setValues, fmt.Sprintf("ap.region = '%s'", filter.Region))
+		}
+
+		if filter.Locality != "" {
+			setValues = append(setValues, fmt.Sprintf("ap.locality = '%s'", filter.Locality))
+		}
+
+		if filter.Status != "" {
+			setValues = append(setValues, fmt.Sprintf("ap.status = '%s'", filter.Status))
+		}
+
+		query += strings.Join(setValues, " AND ")
 	}
+
 	return query
 }
 
@@ -120,6 +155,10 @@ func (a AdvertPetPostgres) Update(id int, input models.UpdateAdvertInput) error 
 		args = append(args, *input.Status)
 		argId++
 	}
+
+	setValues = append(setValues, fmt.Sprintf("publication=$%d", argId))
+	args = append(args, time.Now())
+	argId++
 
 	setQuery := strings.Join(setValues, ", ")
 	query := fmt.Sprintf("UPDATE %s ap SET %s WHERE ap.id = $%d",

@@ -58,8 +58,72 @@ func (h *Handler) createNewAdvert(c *gin.Context) {
 }
 
 func (h *Handler) getAllAdverts(c *gin.Context) {
-
+	query := c.Request.URL.Query()
 	filter := models.AdvertPetFilter{}
+
+	if query.Has("id") {
+		AdvertPetId, err := strconv.Atoi(query.Get("id"))
+		if err != nil || AdvertPetId <= 0 {
+			newErrorResponse(c, http.StatusBadRequest, "invalid advert pet id param")
+			return
+		}
+		filter.AdvertPetId = AdvertPetId
+	}
+
+	if query.Has("userID") {
+		userID := query.Get("userID")
+		if len(userID) == 0 {
+			c.JSON(http.StatusBadRequest, statusResponse{"invalid access token"})
+			return
+		}
+		id, err := uuid.Parse(userID)
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+		filter.UserId = id
+	}
+
+	if query.Has("minPrice") {
+		minPrice, err := strconv.Atoi(query.Get("minPrice"))
+		if err != nil || minPrice <= 0 {
+			newErrorResponse(c, http.StatusBadRequest, "invalid advert pet id param")
+			return
+		}
+		filter.MinPrice = minPrice
+	}
+
+	if query.Has("maxPrice") {
+		maxPrice, err := strconv.Atoi(query.Get("maxPrice"))
+		if err != nil || maxPrice <= 0 {
+			newErrorResponse(c, http.StatusBadRequest, "invalid advert pet id param")
+			return
+		}
+		filter.MaxPrice = maxPrice
+	}
+
+	if query.Has("region") {
+		filter.Region = query.Get("region")
+	}
+
+	if query.Has("locality") {
+		filter.Locality = query.Get("locality")
+	}
+
+	if query.Has("status") {
+
+		switch query.Get("status") {
+		case "moderationFailed":
+			filter.Status = "Не прошло модерацию"
+		case "archived":
+			filter.Status = "В архиве"
+		case "published":
+			filter.Status = "Опубликовано"
+		default:
+			filter.Status = ""
+		}
+
+	}
 
 	advertPetList, err := h.services.AdvertPet.GetAll(filter)
 	if err != nil {
