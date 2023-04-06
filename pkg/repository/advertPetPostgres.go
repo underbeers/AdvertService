@@ -78,6 +78,14 @@ func createAdvertPetQuery(filter models.AdvertPetFilter) string {
 		query += strings.Join(setValues, " AND ")
 	}
 
+	if filter.PublicationSort != false {
+		query += " ORDER BY ap.publication"
+	} else if filter.MinPriceSort != false {
+		query += " ORDER BY ap.price"
+	} else if filter.MaxPriceSort != false {
+		query += " ORDER BY ap.price DESC"
+	}
+
 	return query
 }
 
@@ -94,7 +102,7 @@ func (a AdvertPetPostgres) ChangeStatus(id int, status string) error {
 	query := fmt.Sprintf("UPDATE %s ap SET status = '%s' WHERE ap.id = %d",
 		advertPetTable, status, id)
 	_, err := a.db.Exec(query)
-	
+
 	return err
 }
 

@@ -131,6 +131,19 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 
 	}
 
+	if query.Has("sort") {
+
+		switch query.Get("sort") {
+		case "minPrice":
+			filter.MinPriceSort = true
+		case "maxPrice":
+			filter.MaxPriceSort = true
+		case "publication":
+			filter.PublicationSort = true
+		}
+
+	}
+
 	advertPetList, err := h.services.AdvertPet.GetAll(filter)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
