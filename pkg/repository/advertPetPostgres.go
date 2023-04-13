@@ -35,14 +35,14 @@ func (a AdvertPetPostgres) Create(advertPet models.AdvertPet) error {
 	return tx.Commit()
 }
 
-func createAdvertPetQuery(filter models.AdvertPetFilter) string {
+func createAdvertPetQuery(query string, filter models.AdvertPetFilter) string {
 
-	query := fmt.Sprintf("SELECT ap.id, ap.pet_card_id, ap.user_id, ap.price, ap.description, ap.region, "+
-		"ap.locality, ap.chat, ap.phone, ap.status, ap.publication FROM %s ap ",
-		advertPetTable)
+	query += "INNER JOIN pet_card pc ON ap.pet_card_id = pc.id INNER JOIN pet_type pt ON pc.pet_type_id = pt.id " +
+		"INNER JOIN breed br ON pc.breed_id = br.id "
 
 	if filter.AdvertPetId != 0 || filter.UserId != uuid.Nil || filter.Region != "" || filter.Locality != "" ||
-		filter.Status != "" || filter.MinPrice != 0 || filter.MaxPrice != 0 {
+		filter.Status != "" || filter.MinPrice != 0 || filter.MaxPrice != 0 || filter.BreedId != 0 ||
+		filter.PetTypeId != 0 || filter.Gender != "" || filter.PetCardId != 0 {
 
 		query += "WHERE "
 		setValues := make([]string, 0)
@@ -75,26 +75,69 @@ func createAdvertPetQuery(filter models.AdvertPetFilter) string {
 			setValues = append(setValues, fmt.Sprintf("ap.status = '%s'", filter.Status))
 		}
 
+		if filter.PetCardId != 0 {
+			setValues = append(setValues, fmt.Sprintf("ap.pet_card_id = %d", filter.PetCardId))
+		}
+
+		if filter.PetTypeId != 0 {
+			setValues = append(setValues, fmt.Sprintf("pc.pet_type_id = %d", filter.PetTypeId))
+		}
+
+		if filter.BreedId != 0 {
+			setValues = append(setValues, fmt.Sprintf("pc.breed_id = %d", filter.BreedId))
+		}
+
+		if filter.Gender != "" {
+			if filter.Gender == "male" {
+				setValues = append(setValues, fmt.Sprintf("pc.male = True"))
+			} else if filter.Gender == "female" {
+				setValues = append(setValues, fmt.Sprintf("pc.male = False"))
+			}
+		}
+
 		query += strings.Join(setValues, " AND ")
 	}
 
+	return query
+}
+
+func (a AdvertPetPostgres) GetAll(filter models.AdvertPetFilter) (advertPet []models.AdvertPet, total int64, err error) {
+	var lists []models.AdvertPet
+
+	countQuery := fmt.Sprintf("SELECT count(*) FROM %s ap ", advertPetTable)
+	err = a.db.QueryRow(createAdvertPetQuery(countQuery, filter)).Scan(&total)
+
+	query := fmt.Sprintf("SELECT ap.id, ap.pet_card_id, ap.user_id, ap.price, ap.description, ap.region, "+
+		"ap.locality, ap.chat, ap.phone, ap.status, ap.publication, pc.pet_name, pc.photo AS main_photo FROM %s ap ",
+		advertPetTable)
+	query = createAdvertPetQuery(query, filter)
+
 	if filter.PublicationSort != false {
-		query += " ORDER BY ap.publication"
+		query += " ORDER BY ap.publication DESC"
 	} else if filter.MinPriceSort != false {
 		query += " ORDER BY ap.price"
 	} else if filter.MaxPriceSort != false {
 		query += " ORDER BY ap.price DESC"
 	}
 
-	return query
+	query += fmt.Sprintf(" LIMIT %d OFFSET %d", filter.PerPage, (filter.Page-1)*filter.PerPage)
+	err = a.db.Select(&lists, query)
+
+	return lists, total, err
 }
 
-func (a AdvertPetPostgres) GetAll(filter models.AdvertPetFilter) ([]models.AdvertPet, error) {
-	var lists []models.AdvertPet
+func (a AdvertPetPostgres) GetFullAdvert(id int) (advert models.FullAdvert, err error) {
 
-	query := createAdvertPetQuery(filter)
-	err := a.db.Select(&lists, query)
-	return lists, err
+	query := fmt.Sprintf("SELECT ap.id, ap.pet_card_id, ap.user_id, ap.price, ap.description, ap.region, "+
+		"ap.locality, ap.chat, ap.phone, ap.status, ap.publication, pc.pet_name, pc.pet_type_id, pt.pet_type, "+
+		"pc.breed_id, br.breed_name, pc.photo, pc.birth_date, pc.male, CASE pc.male WHEN True THEN 'Мальчик' WHEN "+
+		"False THEN 'Девочка' END AS gender, pc.color, pc.care, pc.pet_character, pc.pedigree, pc.sterilization, "+
+		"pc.vaccinations FROM %s ap INNER JOIN pet_card pc ON ap.pet_card_id = pc.id INNER JOIN pet_type pt ON "+
+		"pc.pet_type_id = pt.id INNER JOIN breed br ON pc.breed_id = br.id WHERE ap.id = %d",
+		advertPetTable, id)
+	err = a.db.Get(&advert, query)
+
+	return advert, err
 }
 
 func (a AdvertPetPostgres) ChangeStatus(id int, status string) error {

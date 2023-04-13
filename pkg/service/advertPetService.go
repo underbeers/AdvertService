@@ -17,8 +17,12 @@ func (s *AdvertPetService) Create(advertPet models.AdvertPet) error {
 	return s.repo.Create(advertPet)
 }
 
-func (s *AdvertPetService) GetAll(filter models.AdvertPetFilter) ([]models.AdvertPet, error) {
+func (s *AdvertPetService) GetAll(filter models.AdvertPetFilter) (advertPet []models.AdvertPet, total int64, err error) {
 	return s.repo.GetAll(filter)
+}
+
+func (s *AdvertPetService) GetFullAdvert(id int) (advert models.FullAdvert, err error) {
+	return s.repo.GetFullAdvert(id)
 }
 
 func (s *AdvertPetService) ChangeStatus(id int, status string) error {

@@ -17,4 +17,6 @@ type AdvertPet struct {
 	Phone       string    `json:"phone" db:"phone"`
 	Status      string    `json:"status" db:"status"`
 	Publication time.Time `json:"publication" db:"publication"`
+	PetName     string    `json:"petName" db:"pet_name"`
+	MainPhoto   string    `json:"mainPhoto" db:"main_photo"`
 }
