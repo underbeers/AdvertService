@@ -13,29 +13,29 @@ func NewAdvertPetService(repo repository.AdvertPet) *AdvertPetService {
 	return &AdvertPetService{repo: repo}
 }
 
-func (s *AdvertPetService) Create(advertPet models.AdvertPet) error {
-	return s.repo.Create(advertPet)
+func (a *AdvertPetService) Create(advertPet models.AdvertPet) error {
+	return a.repo.Create(advertPet)
 }
 
-func (s *AdvertPetService) GetAll(filter models.AdvertPetFilter) (advertPet []models.AdvertPet, total int64, err error) {
-	return s.repo.GetAll(filter)
+func (a *AdvertPetService) GetAll(filter models.AdvertPetFilter) (advertPet []models.AdvertPet, total int64, err error) {
+	return a.repo.GetAll(filter)
 }
 
-func (s *AdvertPetService) GetFullAdvert(id int) (advert models.FullAdvert, err error) {
-	return s.repo.GetFullAdvert(id)
+func (a *AdvertPetService) GetFullAdvert(id int) (advert models.FullAdvert, err error) {
+	return a.repo.GetFullAdvert(id)
 }
 
-func (s *AdvertPetService) ChangeStatus(id int, status string) error {
-	return s.repo.ChangeStatus(id, status)
+func (a *AdvertPetService) ChangeStatus(id int, status string) error {
+	return a.repo.ChangeStatus(id, status)
 }
 
-func (s *AdvertPetService) Delete(id int) error {
-	return s.repo.Delete(id)
+func (a *AdvertPetService) Delete(id int) error {
+	return a.repo.Delete(id)
 }
 
-func (s *AdvertPetService) Update(id int, input models.UpdateAdvertInput) error {
+func (a *AdvertPetService) Update(id int, input models.UpdateAdvertInput) error {
 	if err := input.Validate(); err != nil {
 		return err
 	}
-	return s.repo.Update(id, input)
+	return a.repo.Update(id, input)
 }

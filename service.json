@@ -1,0 +1,3 @@
+{
+  "urls": ["adverts", "adverts/:id", "location/city", "location/district"]
+}

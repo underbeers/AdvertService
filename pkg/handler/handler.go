@@ -29,6 +29,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			advertPet.DELETE("/delete/:id", h.deleteAdvert).OPTIONS("/delete/:id", h.deleteAdvert)
 		}
 
+		locality := api.Group("location")
+		{
+			locality.GET("/city", h.getCities).OPTIONS("/city", h.getCities)
+			locality.GET("/district", h.getDistricts).OPTIONS("/district", h.getDistricts)
+		}
+
 	}
 
 	h.services.Router = router

@@ -1,0 +1,46 @@
+{
+  "name": "advert",
+  "label": "pl_advert_service",
+  "endpoints": [
+    {
+      "url": "adverts/new",
+      "protected": true,
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "url": "adverts",
+      "protected": false,
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "url": "adverts/:id",
+      "protected": false,
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "url": "adverts/changeStatus/:id",
+      "protected": true,
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "url": "adverts/update/:id",
+      "protected": true,
+      "methods": ["PUT", "OPTIONS"]
+    },
+    {
+      "url": "adverts/delete/:id",
+      "protected": true,
+      "methods": ["DELETE", "OPTIONS"]
+    },
+    {
+      "url": "location/city",
+      "protected": false,
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "url": "location/district",
+      "protected": false,
+      "methods": ["GET", "OPTIONS"]
+    }
+  ]
+}

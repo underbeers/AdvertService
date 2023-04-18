@@ -15,8 +15,14 @@ type AdvertPet interface {
 	Update(id int, input models.UpdateAdvertInput) error
 }
 
+type Location interface {
+	GetCities(filter models.CityFilter) (city []models.City, err error)
+	GetDistricts(filter models.DistrictFilter) (district []models.District, err error)
+}
+
 type Service struct {
 	AdvertPet
+	Location
 	Config *repository.Config
 	Router *gin.Engine
 }
@@ -24,6 +30,7 @@ type Service struct {
 func NewService(repos *repository.Repository, cfg *repository.Config) *Service {
 	return &Service{
 		AdvertPet: NewAdvertPetService(repos.AdvertPet),
+		Location:  NewLocationService(repos.Location),
 		Config:    cfg,
 	}
 }

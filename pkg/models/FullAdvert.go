@@ -11,8 +11,10 @@ type FullAdvert struct {
 	UserId        uuid.UUID `json:"userID" db:"user_id"`
 	Price         int       `json:"price" db:"price"`
 	Description   string    `json:"description" db:"description"`
-	Region        string    `json:"region" db:"region"`
-	Locality      string    `json:"locality" db:"locality"`
+	CityId        int       `json:"cityID" db:"city_id"`
+	City          string    `json:"city"`
+	DistrictId    int       `json:"districtID" db:"district_id"`
+	District      string    `json:"district"`
 	Chat          bool      `json:"chat" db:"chat"`
 	Phone         string    `json:"phone" db:"phone"`
 	Status        string    `json:"status" db:"status"`

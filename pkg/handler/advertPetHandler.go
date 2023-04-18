@@ -63,7 +63,7 @@ func (h *Handler) createNewAdvert(c *gin.Context) {
 		return
 	}
 	if total == 1 {
-		newErrorResponse(c, http.StatusBadRequest, "It is forbidden to create two ads for one pet card")
+		newErrorResponse(c, http.StatusBadRequest, "it is forbidden to create two ads for one pet card")
 		return
 	}
 
@@ -71,7 +71,7 @@ func (h *Handler) createNewAdvert(c *gin.Context) {
 
 	err = h.services.AdvertPet.Create(input)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -87,7 +87,8 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 		PetName     string    `json:"petName"`
 		MainPhoto   string    `json:"mainPhoto"`
 		Price       int       `json:"price"`
-		Locality    string    `json:"locality"`
+		City        string    `json:"city"`
+		District    string    `json:"district"`
 		Publication time.Time `json:"publication"`
 	}
 
@@ -142,12 +143,22 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 		filter.MaxPrice = maxPrice
 	}
 
-	if query.Has("region") {
-		filter.Region = query.Get("region")
+	if query.Has("cityID") {
+		cityID, err := strconv.Atoi(query.Get("cityID"))
+		if err != nil || cityID <= 0 {
+			newErrorResponse(c, http.StatusBadRequest, "invalid city id param")
+			return
+		}
+		filter.CityId = cityID
 	}
 
-	if query.Has("locality") {
-		filter.Locality = query.Get("locality")
+	if query.Has("districtID") {
+		districtID, err := strconv.Atoi(query.Get("districtID"))
+		if err != nil || districtID <= 0 {
+			newErrorResponse(c, http.StatusBadRequest, "invalid district id param")
+			return
+		}
+		filter.DistrictId = districtID
 	}
 
 	if query.Has("status") {
@@ -272,7 +283,8 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 				PetName:     advertPetList[i].PetName,
 				MainPhoto:   advertPetList[i].MainPhoto,
 				Price:       advertPetList[i].Price,
-				Locality:    advertPetList[i].Locality,
+				City:        advertPetList[i].City,
+				District:    advertPetList[i].District,
 				Publication: advertPetList[i].Publication,
 			})
 	}
@@ -338,7 +350,7 @@ func (h *Handler) changeStatus(c *gin.Context) {
 	} else if advertPet.Status == published {
 		status = archived
 	} else {
-		newErrorResponse(c, http.StatusBadRequest, "Can't change status because ad moderation failed")
+		newErrorResponse(c, http.StatusBadRequest, "can't change status because ad moderation failed")
 		return
 	}
 
@@ -390,11 +402,22 @@ func (h *Handler) updateAdvert(c *gin.Context) {
 		return
 	}
 
-	input.UserId = &parseUserID
-
 	if input.Description != nil {
 		getStatus := descriptionFilter(*input.Description)
 		input.Status = &getStatus
+	}
+
+	/*Проверка на то, что район относится к нужному городу*/
+	if input.DistrictId != nil {
+		district, err := h.services.Location.GetDistricts(models.DistrictFilter{DistrictId: *input.DistrictId})
+		cityId := advertPet.CityId
+		if input.CityId != nil {
+			cityId = *input.CityId
+		}
+		if err != nil || district[0].CityId != cityId {
+			c.JSON(http.StatusBadRequest, statusResponse{"incorrect district id"})
+			return
+		}
 	}
 
 	if err := h.services.AdvertPet.Update(id, input); err != nil {

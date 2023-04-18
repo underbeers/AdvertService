@@ -14,12 +14,19 @@ type AdvertPet interface {
 	Update(id int, input models.UpdateAdvertInput) error
 }
 
+type Location interface {
+	GetCities(filter models.CityFilter) (city []models.City, err error)
+	GetDistricts(filter models.DistrictFilter) (district []models.District, err error)
+}
+
 type Repository struct {
 	AdvertPet
+	Location
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		AdvertPet: NewAdvertPetPostgres(db),
+		Location:  NewLocationPostgres(db),
 	}
 }

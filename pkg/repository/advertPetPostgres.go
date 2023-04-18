@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -20,16 +21,22 @@ func (a AdvertPetPostgres) Create(advertPet models.AdvertPet) error {
 		return err
 	}
 
-	createAdvertPetQuery := fmt.Sprintf("INSERT INTO %s (pet_card_id, user_id, price, description, region,"+
-		"locality, chat, phone, status, publication) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", advertPetTable)
+	createAdvertPetQuery := fmt.Sprintf("INSERT INTO %s (pet_card_id, user_id, price, description, city_id,"+
+		"district_id, chat, phone, status, publication) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", advertPetTable)
 	_, err = tx.Exec(createAdvertPetQuery, advertPet.PetCardId, advertPet.UserId, advertPet.Price, advertPet.Description,
-		advertPet.Region, advertPet.Locality, advertPet.Chat, advertPet.Phone, advertPet.Status, time.Now())
+		advertPet.CityId, advertPet.DistrictId, advertPet.Chat, advertPet.Phone, advertPet.Status, time.Now())
 	if err != nil {
-		err := tx.Rollback()
-		if err != nil {
-			return err
-		}
-		return err
+		tx.Rollback()
+		return errors.New(err.Error())
+	}
+
+	var advert models.AdvertPet
+	query := fmt.Sprintf("SELECT pc.user_id FROM pet_card pc WHERE pc.id = %d", advertPet.PetCardId)
+	err = a.db.Get(&advert, query)
+
+	if advert.UserId != advertPet.UserId {
+		tx.Rollback()
+		return errors.New(err.Error())
 	}
 
 	return tx.Commit()
@@ -38,9 +45,10 @@ func (a AdvertPetPostgres) Create(advertPet models.AdvertPet) error {
 func createAdvertPetQuery(query string, filter models.AdvertPetFilter) string {
 
 	query += "INNER JOIN pet_card pc ON ap.pet_card_id = pc.id INNER JOIN pet_type pt ON pc.pet_type_id = pt.id " +
-		"INNER JOIN breed br ON pc.breed_id = br.id "
+		"INNER JOIN breed br ON pc.breed_id = br.id INNER JOIN city ct ON ap.city_id = ct.id INNER JOIN district ds " +
+		"ON ap.district_id = ds.id "
 
-	if filter.AdvertPetId != 0 || filter.UserId != uuid.Nil || filter.Region != "" || filter.Locality != "" ||
+	if filter.AdvertPetId != 0 || filter.UserId != uuid.Nil || filter.CityId != 0 || filter.DistrictId != 0 ||
 		filter.Status != "" || filter.MinPrice != 0 || filter.MaxPrice != 0 || filter.BreedId != 0 ||
 		filter.PetTypeId != 0 || filter.Gender != "" || filter.PetCardId != 0 {
 
@@ -63,12 +71,12 @@ func createAdvertPetQuery(query string, filter models.AdvertPetFilter) string {
 			setValues = append(setValues, fmt.Sprintf("ap.price <= %d", filter.MaxPrice))
 		}
 
-		if filter.Region != "" {
-			setValues = append(setValues, fmt.Sprintf("ap.region = '%s'", filter.Region))
+		if filter.CityId != 0 {
+			setValues = append(setValues, fmt.Sprintf("ap.city_id = %d", filter.CityId))
 		}
 
-		if filter.Locality != "" {
-			setValues = append(setValues, fmt.Sprintf("ap.locality = '%s'", filter.Locality))
+		if filter.DistrictId != 0 {
+			setValues = append(setValues, fmt.Sprintf("ap.district_id = %d", filter.DistrictId))
 		}
 
 		if filter.Status != "" {
@@ -107,8 +115,9 @@ func (a AdvertPetPostgres) GetAll(filter models.AdvertPetFilter) (advertPet []mo
 	countQuery := fmt.Sprintf("SELECT count(*) FROM %s ap ", advertPetTable)
 	err = a.db.QueryRow(createAdvertPetQuery(countQuery, filter)).Scan(&total)
 
-	query := fmt.Sprintf("SELECT ap.id, ap.pet_card_id, ap.user_id, ap.price, ap.description, ap.region, "+
-		"ap.locality, ap.chat, ap.phone, ap.status, ap.publication, pc.pet_name, pc.photo AS main_photo FROM %s ap ",
+	query := fmt.Sprintf("SELECT ap.id, ap.pet_card_id, ap.user_id, ap.price, ap.description, ap.city_id, "+
+		"ap.district_id, ap.chat, ap.phone, ap.status, ap.publication, pc.pet_name, pc.photo AS main_photo, "+
+		"ct.city, ds.district FROM %s ap ",
 		advertPetTable)
 	query = createAdvertPetQuery(query, filter)
 
@@ -128,12 +137,13 @@ func (a AdvertPetPostgres) GetAll(filter models.AdvertPetFilter) (advertPet []mo
 
 func (a AdvertPetPostgres) GetFullAdvert(id int) (advert models.FullAdvert, err error) {
 
-	query := fmt.Sprintf("SELECT ap.id, ap.pet_card_id, ap.user_id, ap.price, ap.description, ap.region, "+
-		"ap.locality, ap.chat, ap.phone, ap.status, ap.publication, pc.pet_name, pc.pet_type_id, pt.pet_type, "+
+	query := fmt.Sprintf("SELECT ap.id, ap.pet_card_id, ap.user_id, ap.price, ap.description, ap.city_id, "+
+		"ap.district_id, ap.chat, ap.phone, ap.status, ap.publication, pc.pet_name, pc.pet_type_id, pt.pet_type, "+
 		"pc.breed_id, br.breed_name, pc.photo, pc.birth_date, pc.male, CASE pc.male WHEN True THEN 'Мальчик' WHEN "+
 		"False THEN 'Девочка' END AS gender, pc.color, pc.care, pc.pet_character, pc.pedigree, pc.sterilization, "+
-		"pc.vaccinations FROM %s ap INNER JOIN pet_card pc ON ap.pet_card_id = pc.id INNER JOIN pet_type pt ON "+
-		"pc.pet_type_id = pt.id INNER JOIN breed br ON pc.breed_id = br.id WHERE ap.id = %d",
+		"pc.vaccinations, ct.city, ds.district FROM %s ap INNER JOIN pet_card pc ON ap.pet_card_id = pc.id INNER "+
+		"JOIN pet_type pt ON pc.pet_type_id = pt.id INNER JOIN breed br ON pc.breed_id = br.id INNER JOIN city ct ON "+
+		"ap.city_id = ct.id INNER JOIN district ds ON ap.district_id = ds.id WHERE ap.id = %d",
 		advertPetTable, id)
 	err = a.db.Get(&advert, query)
 
@@ -168,12 +178,6 @@ func (a AdvertPetPostgres) Update(id int, input models.UpdateAdvertInput) error 
 		argId++
 	}
 
-	if input.UserId != nil {
-		setValues = append(setValues, fmt.Sprintf("user_id=$%d", argId))
-		args = append(args, *input.UserId)
-		argId++
-	}
-
 	if input.Price != nil {
 		setValues = append(setValues, fmt.Sprintf("price=$%d", argId))
 		args = append(args, *input.Price)
@@ -186,15 +190,15 @@ func (a AdvertPetPostgres) Update(id int, input models.UpdateAdvertInput) error 
 		argId++
 	}
 
-	if input.Region != nil {
-		setValues = append(setValues, fmt.Sprintf("region=$%d", argId))
-		args = append(args, *input.Region)
+	if input.CityId != nil {
+		setValues = append(setValues, fmt.Sprintf("city_id=$%d", argId))
+		args = append(args, *input.CityId)
 		argId++
 	}
 
-	if input.Locality != nil {
-		setValues = append(setValues, fmt.Sprintf("locality=$%d", argId))
-		args = append(args, *input.Locality)
+	if input.DistrictId != nil {
+		setValues = append(setValues, fmt.Sprintf("district_id=$%d", argId))
+		args = append(args, *input.DistrictId)
 		argId++
 	}
 

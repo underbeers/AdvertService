@@ -8,8 +8,8 @@ type AdvertPetFilter struct {
 	UserId          uuid.UUID
 	MinPrice        int
 	MaxPrice        int
-	Region          string
-	Locality        string
+	CityId          int
+	DistrictId      int
 	Status          string
 	MinPriceSort    bool
 	MaxPriceSort    bool
@@ -19,4 +19,13 @@ type AdvertPetFilter struct {
 	PetTypeId       int
 	BreedId         int
 	Gender          string
+}
+
+type CityFilter struct {
+	CityId int
+}
+
+type DistrictFilter struct {
+	DistrictId int
+	CityId     int
 }

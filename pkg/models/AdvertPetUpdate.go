@@ -12,8 +12,8 @@ type UpdateAdvertInput struct {
 	UserId      *uuid.UUID `json:"userID" db:"user_id"`
 	Price       *int       `json:"price" db:"price"`
 	Description *string    `json:"description" db:"description"`
-	Region      *string    `json:"region" db:"region"`
-	Locality    *string    `json:"locality" db:"locality"`
+	CityId      *int       `json:"cityID" db:"city_id"`
+	DistrictId  *int       `json:"districtID" db:"district_id"`
 	Chat        *bool      `json:"chat" db:"chat"`
 	Phone       *string    `json:"phone" db:"phone"`
 	Status      *string    `json:"status" db:"status"`
@@ -21,8 +21,8 @@ type UpdateAdvertInput struct {
 }
 
 func (i UpdateAdvertInput) Validate() error {
-	if i.Id == nil && i.PetCardId == nil && i.UserId == nil && i.Price == nil && i.Description == nil &&
-		i.Region == nil && i.Locality == nil && i.Chat == nil && i.Phone == nil && i.Status == nil &&
+	if i.Id == nil && i.PetCardId == nil && i.Price == nil && i.Description == nil &&
+		i.CityId == nil && i.DistrictId == nil && i.Chat == nil && i.Phone == nil && i.Status == nil &&
 		i.Publication == nil {
 		return errors.New("update structure has no values")
 	}
