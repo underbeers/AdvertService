@@ -40,8 +40,7 @@ func (h *Handler) createNewAdvert(c *gin.Context) {
 		return
 	}
 
-	//userID := c.Request.Header.Get("userID")
-	userID := "5cd754f9-d1aa-4b58-abc9-4d106be4d475"
+	userID := c.Request.Header.Get("userID")
 
 	if len(userID) == 0 {
 		c.JSON(http.StatusBadRequest, statusResponse{"invalid access token"})
@@ -324,8 +323,8 @@ func (h *Handler) changeStatus(c *gin.Context) {
 		return
 	}
 
-	//userID := c.Request.Header.Get("userID")
-	userID := "5cd754f9-d1aa-4b58-abc9-4d106be4d475"
+	userID := c.Request.Header.Get("userID")
+
 	if len(userID) == 0 {
 		c.JSON(http.StatusBadRequest, statusResponse{"invalid access token"})
 		return
@@ -383,8 +382,8 @@ func (h *Handler) updateAdvert(c *gin.Context) {
 		return
 	}
 
-	//userID := c.Request.Header.Get("userID")
-	userID := "5cd754f9-d1aa-4b58-abc9-4d106be4d475"
+	userID := c.Request.Header.Get("userID")
+
 	if len(userID) == 0 {
 		c.JSON(http.StatusBadRequest, statusResponse{"invalid access token"})
 		return
@@ -437,8 +436,8 @@ func (h *Handler) deleteAdvert(c *gin.Context) {
 		return
 	}
 
-	//userID := c.Request.Header.Get("userID")
-	userID := "5cd754f9-d1aa-4b58-abc9-4d106be4d475"
+	userID := c.Request.Header.Get("userID")
+
 	if len(userID) == 0 {
 		c.JSON(http.StatusBadRequest, statusResponse{"invalid access token"})
 		return
