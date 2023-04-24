@@ -7,12 +7,16 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
+	"github.com/underbeers/AdvertService/pkg/models"
 	"log"
 	"os"
 	"time"
 )
 
-const advertPetTable = "advert_pet"
+const (
+	advertPetTable = "advert_pet"
+	dbVersion      = 1
+)
 
 type Config struct {
 	DebugMode bool
@@ -39,6 +43,14 @@ type Gateway struct {
 	Port  string `yaml:"port"`
 	IP    string `yaml:"ip"`
 	Label string `yaml:"label"`
+}
+
+type Service struct {
+	Name      string            `json:"name"`
+	Port      string            `json:"port"`
+	IP        string            `json:"ip"`
+	Label     string            `json:"label"`
+	Endpoints []models.Endpoint `json:"endpoints"`
 }
 
 func (db *DB) GetConnectionString() string {
@@ -89,6 +101,16 @@ func GetConfig() *Config {
 	logger := log.Default()
 	logger.Print("Read application configuration")
 	instance := &Config{DB: &DB{}}
+
+	instance.Gateway = &Gateway{
+		IP:   getEnv("GATEWAY_IP", ""),
+		Port: getEnv("GATEWAY_PORT", ""),
+	}
+
+	instance.VersionDB = dbVersion
+	instance.Listen = &Listen{}
+	instance.Listen.IP = getEnv("ADVERTSERVICE_IP", "")
+	instance.Listen.Port = getEnv("ADVERTSERVICE_PORT", "")
 
 	instance.DB = &DB{
 		Host:     getEnv("POSTGRES_HOST", ""),

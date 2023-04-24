@@ -15,7 +15,7 @@ CREATE TABLE district
 CREATE TABLE advert_pet
 (
     id          serial primary key,
-    pet_card_id int references pet_card (id) ON DELETE CASCADE,
+    pet_card_id int,
     user_id     UUID,
     price       int,
     description varchar(2000),

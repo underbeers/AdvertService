@@ -22,7 +22,7 @@ func main() {
 	handlers := handler.NewHandler(services)
 
 	srv := new(advertService.Server)
-	if err := srv.Run(handlers.InitRoutes()); err != nil {
+	if err := srv.Run(handlers.InitRoutes(), cfg); err != nil {
 		logrus.Fatalf("error occured while running http server: %s", err.Error())
 	}
 }

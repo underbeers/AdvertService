@@ -35,6 +35,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			locality.GET("/district", h.getDistricts).OPTIONS("/district", h.getDistricts)
 		}
 
+		gwConnect := api.Group("endpoint-info")
+		{
+			gwConnect.GET("/", h.handleInfo).OPTIONS("/", h.handleInfo)
+		}
+
 	}
 
 	h.services.Router = router
