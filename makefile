@@ -10,11 +10,11 @@ local:
 	go build -o . cmd/main.go
 	./main --use_db_config
 build_image:
-	docker build -t rodmul/pl_pet_service:v3 .
+	docker build -t danponyavin/pl_advert_service:v1 .
 run:
-	docker run -d -p 6003:6003 -e POSTGRES_PASSWORD='DNd72JDSufesosd9' \
-	-e POSTGRES_HOST='79.137.198.139' -e POSTGRES_USER='postgres' \
-	-e POSTGRES_PORT='58235' -e POSTGRES_DB_NAME='advert_service' \
-	-e GATEWAY_PORT='6002' -e GATEWAY_IP='pl_api_gateway' \
-	-e ADVERTSERVICE_IP='127.0.0.1' -e ADVERTSERVICE_PORT='6004' \
-	--name pet_service_container rodmul/pl_pet_service:v3
+	docker run -d -p 6003:6003 -e POSTGRES_PASSWORD='' \
+	-e POSTGRES_HOST='' -e POSTGRES_USER='' \
+	-e POSTGRES_PORT='' -e POSTGRES_DB_NAME='' \
+	-e GATEWAY_PORT='' -e GATEWAY_IP='' \
+	-e ADVERTSERVICE_IP='' -e ADVERTSERVICE_PORT='' \
+	--name pet_service_container danponyavin/pl_advert_service:v1
