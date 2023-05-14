@@ -21,4 +21,8 @@ type AdvertPet struct {
 	Publication time.Time `json:"publication" db:"publication"`
 	PetName     string    `json:"petName" db:"pet_name"`
 	MainPhoto   string    `json:"mainPhoto" db:"main_photo"`
+	Gender      string    `json:"gender" db:"gender"`
+	BirthDate   time.Time `json:"birthDate" db:"birth_date"`
+	PetTypeName string    `json:"petType" db:"pet_type"`
+	BreedName   string    `json:"breed" db:"breed_name"`
 }

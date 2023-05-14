@@ -83,12 +83,18 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 	type AdvertsResponse struct {
 		Id          int       `json:"id"`
 		PetCardId   int       `json:"petCardID"`
+		UserId      uuid.UUID `json:"userID"`
 		PetName     string    `json:"petName"`
 		MainPhoto   string    `json:"mainPhoto"`
 		Price       int       `json:"price"`
+		Description string    `json:"description"`
 		City        string    `json:"city"`
 		District    string    `json:"district"`
 		Publication time.Time `json:"publication"`
+		Gender      string    `json:"gender"`
+		BirthDate   time.Time `json:"birthDate"`
+		PetTypeName string    `json:"petType"`
+		BreedName   string    `json:"breed"`
 	}
 
 	type Response struct {
@@ -260,7 +266,7 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 	}
 
 	if len(advertPetList) == 0 {
-		newErrorResponse(c, http.StatusBadRequest, "records not found")
+		newErrorResponse(c, http.StatusOK, "records not found")
 		return
 	}
 
@@ -279,12 +285,18 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 			AdvertsResponse{
 				Id:          advertPetList[i].Id,
 				PetCardId:   advertPetList[i].PetCardId,
+				UserId:      advertPetList[i].UserId,
 				PetName:     advertPetList[i].PetName,
-				MainPhoto:   advertPetList[i].MainPhoto,
+				MainPhoto:   strings.Split(advertPetList[i].MainPhoto, ", ")[0],
 				Price:       advertPetList[i].Price,
+				Description: advertPetList[i].Description,
 				City:        advertPetList[i].City,
 				District:    advertPetList[i].District,
 				Publication: advertPetList[i].Publication,
+				Gender:      advertPetList[i].Gender,
+				BirthDate:   advertPetList[i].BirthDate,
+				PetTypeName: advertPetList[i].PetTypeName,
+				BreedName:   advertPetList[i].BreedName,
 			})
 	}
 
@@ -293,10 +305,48 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 
 func (h *Handler) getFullAdvert(c *gin.Context) {
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+	var id int
+	query := c.Request.URL.Query()
+	if query.Has("id") {
+		cardID, err := strconv.Atoi(query.Get("id"))
+		id = cardID
+		if err != nil {
+			newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+			return
+		}
+	} else {
+		newErrorResponse(c, http.StatusBadRequest, "id not provided")
 		return
+	}
+
+	type PhotoResponse struct {
+		ThumbnailPhoto string `json:"thumbnail"`
+		Photo          string `json:"original"`
+	}
+
+	type AdvertResponse struct {
+		Id            int             `json:"id" db:"id"`
+		UserId        uuid.UUID       `json:"userID" db:"user_id"`
+		Price         int             `json:"price" db:"price"`
+		Description   string          `json:"description" db:"description"`
+		City          string          `json:"city"`
+		District      string          `json:"district"`
+		Chat          bool            `json:"chat" db:"chat"`
+		Phone         string          `json:"phone" db:"phone"`
+		Status        string          `json:"status" db:"status"`
+		Publication   time.Time       `json:"publication" db:"publication"`
+		PetName       string          `json:"petName" db:"pet_name"`
+		PetTypeName   string          `json:"petType" db:"pet_type"`
+		BreedName     string          `json:"breed" db:"breed_name"`
+		Photo         []PhotoResponse `json:"photos"`
+		BirthDate     time.Time       `json:"birthDate" db:"birth_date"`
+		Gender        string          `json:"gender" db:"gender"`
+		Color         string          `json:"color" db:"color"`
+		Care          string          `json:"care" db:"care"`
+		Character     string          `json:"petCharacter" db:"pet_character"`
+		Pedigree      string          `json:"pedigree" db:"pedigree"`
+		Sterilization bool            `json:"sterilization" db:"sterilization"`
+		Vaccinations  bool            `json:"vaccinations" db:"vaccinations"`
 	}
 
 	advert, err := h.services.AdvertPet.GetFullAdvert(id)
@@ -305,14 +355,59 @@ func (h *Handler) getFullAdvert(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, advert)
+	var photos []PhotoResponse
+	originalPhoto := strings.Split(advert.Photo, ", ")
+	thumbnailPhoto := strings.Split(advert.ThumbnailPhoto, ", ")
+	for j := 0; j < len(originalPhoto) || j < len(thumbnailPhoto); j++ {
+		photos = append(photos, PhotoResponse{})
+		if j < len(thumbnailPhoto) {
+			photos[j].ThumbnailPhoto = strings.TrimSpace(thumbnailPhoto[j])
+		}
+		if j < len(originalPhoto) {
+			photos[j].Photo = strings.TrimSpace(originalPhoto[j])
+		}
+	}
+	resp := AdvertResponse{
+		Id:            advert.Id,
+		UserId:        advert.UserId,
+		Price:         advert.Price,
+		Description:   advert.Description,
+		City:          advert.City,
+		District:      advert.District,
+		Chat:          advert.Chat,
+		Phone:         advert.Phone,
+		Status:        advert.Status,
+		Publication:   advert.Publication,
+		PetTypeName:   advert.PetTypeName,
+		PetName:       advert.PetName,
+		BreedName:     advert.BreedName,
+		Photo:         photos,
+		BirthDate:     advert.BirthDate,
+		Gender:        advert.Gender,
+		Color:         advert.Color,
+		Care:          advert.Care,
+		Character:     advert.Character,
+		Pedigree:      advert.Pedigree,
+		Sterilization: advert.Sterilization,
+		Vaccinations:  advert.Vaccinations,
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
 
 func (h *Handler) changeStatus(c *gin.Context) {
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+	var id int
+	query := c.Request.URL.Query()
+	if query.Has("id") {
+		cardID, err := strconv.Atoi(query.Get("id"))
+		id = cardID
+		if err != nil {
+			newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+			return
+		}
+	} else {
+		newErrorResponse(c, http.StatusBadRequest, "id not provided")
 		return
 	}
 
@@ -363,9 +458,17 @@ func (h *Handler) changeStatus(c *gin.Context) {
 }
 
 func (h *Handler) updateAdvert(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+	var id int
+	query := c.Request.URL.Query()
+	if query.Has("id") {
+		cardID, err := strconv.Atoi(query.Get("id"))
+		id = cardID
+		if err != nil {
+			newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+			return
+		}
+	} else {
+		newErrorResponse(c, http.StatusBadRequest, "id not provided")
 		return
 	}
 
@@ -429,10 +532,17 @@ func (h *Handler) updateAdvert(c *gin.Context) {
 }
 
 func (h *Handler) deleteAdvert(c *gin.Context) {
-
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+	var id int
+	query := c.Request.URL.Query()
+	if query.Has("id") {
+		cardID, err := strconv.Atoi(query.Get("id"))
+		id = cardID
+		if err != nil {
+			newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+			return
+		}
+	} else {
+		newErrorResponse(c, http.StatusBadRequest, "id not provided")
 		return
 	}
 

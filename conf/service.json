@@ -13,22 +13,22 @@
       "methods": ["GET", "OPTIONS"]
     },
     {
-      "url": "adverts/:id",
+      "url": "adverts/full",
       "protected": false,
       "methods": ["GET", "OPTIONS"]
     },
     {
-      "url": "adverts/changeStatus/:id",
+      "url": "adverts/changeStatus",
       "protected": true,
       "methods": ["POST", "OPTIONS"]
     },
     {
-      "url": "adverts/update/:id",
+      "url": "adverts/update",
       "protected": true,
       "methods": ["PUT", "OPTIONS"]
     },
     {
-      "url": "adverts/delete/:id",
+      "url": "adverts/delete",
       "protected": true,
       "methods": ["DELETE", "OPTIONS"]
     },

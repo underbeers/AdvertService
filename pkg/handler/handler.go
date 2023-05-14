@@ -23,10 +23,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			advertPet.POST("/new", h.createNewAdvert).OPTIONS("/new", h.createNewAdvert)
 			advertPet.GET("", h.getAllAdverts).OPTIONS("", h.getAllAdverts)
-			advertPet.GET("/:id", h.getFullAdvert).OPTIONS("/:id", h.getFullAdvert)
-			advertPet.POST("/changeStatus/:id", h.changeStatus).OPTIONS("/changeStatus/:id", h.changeStatus)
-			advertPet.PUT("/update/:id", h.updateAdvert).OPTIONS("/update/:id", h.updateAdvert)
-			advertPet.DELETE("/delete/:id", h.deleteAdvert).OPTIONS("/delete/:id", h.deleteAdvert)
+			advertPet.GET("/full", h.getFullAdvert).OPTIONS("/full", h.getFullAdvert)
+			advertPet.POST("/changeStatus", h.changeStatus).OPTIONS("/changeStatus", h.changeStatus)
+			advertPet.PUT("/update", h.updateAdvert).OPTIONS("/update", h.updateAdvert)
+			advertPet.DELETE("/delete", h.deleteAdvert).OPTIONS("/delete", h.deleteAdvert)
 		}
 
 		locality := api.Group("location")

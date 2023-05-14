@@ -27,7 +27,7 @@ func (h *Handler) getCities(c *gin.Context) {
 	}
 
 	if len(cityList) == 0 {
-		newErrorResponse(c, http.StatusBadRequest, "records not found")
+		newErrorResponse(c, http.StatusOK, "records not found")
 		return
 	}
 
@@ -63,7 +63,7 @@ func (h *Handler) getDistricts(c *gin.Context) {
 	}
 
 	if len(cityList) == 0 {
-		newErrorResponse(c, http.StatusBadRequest, "records not found")
+		newErrorResponse(c, http.StatusOK, "records not found")
 		return
 	}
 
