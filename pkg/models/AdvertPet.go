@@ -25,4 +25,5 @@ type AdvertPet struct {
 	BirthDate   time.Time `json:"birthDate" db:"birth_date"`
 	PetTypeName string    `json:"petType" db:"pet_type"`
 	BreedName   string    `json:"breed" db:"breed_name"`
+	FavoritesId int       `json:"favoritesID" db:"favorites_id"`
 }

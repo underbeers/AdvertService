@@ -19,14 +19,23 @@ type Location interface {
 	GetDistricts(filter models.DistrictFilter) (district []models.District, err error)
 }
 
+type Favorites interface {
+	Create(fav models.Favorites) error
+	GetFavorites(filter models.FavoritesFilter) (fav []models.Favorites, err error)
+	GetFavoritesAdverts(filter models.FavoritesFilter) (fav []models.AdvertPet, err error)
+	Delete(id int) error
+}
+
 type Repository struct {
 	AdvertPet
 	Location
+	Favorites
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		AdvertPet: NewAdvertPetPostgres(db),
 		Location:  NewLocationPostgres(db),
+		Favorites: NewFavoritesPostgres(db),
 	}
 }

@@ -29,3 +29,8 @@ type DistrictFilter struct {
 	DistrictId int
 	CityId     int
 }
+
+type FavoritesFilter struct {
+	FavoritesId int
+	UserId      uuid.UUID
+}

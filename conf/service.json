@@ -13,8 +13,18 @@
       "methods": ["GET", "OPTIONS"]
     },
     {
+      "url": "auth/adverts",
+      "protected": true,
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
       "url": "adverts/full",
       "protected": false,
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "url": "auth/adverts/full",
+      "protected": true,
       "methods": ["GET", "OPTIONS"]
     },
     {
@@ -41,6 +51,21 @@
       "url": "location/district",
       "protected": false,
       "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "url": "favorites/add",
+      "protected": true,
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "url": "favorites",
+      "protected": true,
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
+      "url": "favorites/delete",
+      "protected": true,
+      "methods": ["DELETE", "OPTIONS"]
     }
   ]
 }

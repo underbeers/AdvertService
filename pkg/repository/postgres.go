@@ -15,6 +15,7 @@ import (
 
 const (
 	advertPetTable = "advert_pet"
+	favorites      = "favorites"
 	dbVersion      = 1
 )
 

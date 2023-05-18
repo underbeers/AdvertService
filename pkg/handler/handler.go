@@ -29,10 +29,23 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			advertPet.DELETE("/delete", h.deleteAdvert).OPTIONS("/delete", h.deleteAdvert)
 		}
 
+		authAdvertPet := api.Group("auth/adverts")
+		{
+			authAdvertPet.GET("", h.getAuthAllAdverts).OPTIONS("", h.getAuthAllAdverts)
+			authAdvertPet.GET("/full", h.getAuthFullAdvert).OPTIONS("/full", h.getAuthFullAdvert)
+		}
+
 		locality := api.Group("location")
 		{
 			locality.GET("/city", h.getCities).OPTIONS("/city", h.getCities)
 			locality.GET("/district", h.getDistricts).OPTIONS("/district", h.getDistricts)
+		}
+
+		favorites := api.Group("favorites")
+		{
+			favorites.POST("/add", h.addFavorites).OPTIONS("/add", h.addFavorites)
+			favorites.GET("", h.getFavorites).OPTIONS("", h.getFavorites)
+			favorites.DELETE("/delete", h.deleteFavorites).OPTIONS("/delete", h.deleteFavorites)
 		}
 
 		gwConnect := api.Group("endpoint-info")

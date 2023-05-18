@@ -20,9 +20,17 @@ type Location interface {
 	GetDistricts(filter models.DistrictFilter) (district []models.District, err error)
 }
 
+type Favorites interface {
+	Create(fav models.Favorites) error
+	GetFavorites(filter models.FavoritesFilter) (fav []models.Favorites, err error)
+	GetFavoritesAdverts(filter models.FavoritesFilter) (fav []models.AdvertPet, err error)
+	Delete(id int) error
+}
+
 type Service struct {
 	AdvertPet
 	Location
+	Favorites
 	Config *repository.Config
 	Router *gin.Engine
 }
@@ -31,6 +39,7 @@ func NewService(repos *repository.Repository, cfg *repository.Config) *Service {
 	return &Service{
 		AdvertPet: NewAdvertPetService(repos.AdvertPet),
 		Location:  NewLocationService(repos.Location),
+		Favorites: NewFavoritesService(repos.Favorites),
 		Config:    cfg,
 	}
 }
