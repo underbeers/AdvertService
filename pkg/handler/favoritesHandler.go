@@ -191,7 +191,7 @@ func (h *Handler) getFavorites(c *gin.Context) {
 				PetCardId:   favoritesAdverts[i].PetCardId,
 				UserId:      favoritesAdverts[i].UserId,
 				PetName:     favoritesAdverts[i].PetName,
-				MainPhoto:   strings.Split(favoritesAdverts[i].MainPhoto, ", ")[0],
+				MainPhoto:   strings.Split(favoritesAdverts[i].MainPhoto[1:len(favoritesAdverts[i].MainPhoto)-1], ",")[0],
 				Price:       favoritesAdverts[i].Price,
 				Description: favoritesAdverts[i].Description,
 				City:        favoritesAdverts[i].City,

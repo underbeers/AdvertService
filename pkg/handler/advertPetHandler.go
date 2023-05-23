@@ -294,7 +294,7 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 				PetCardId:   advertPetList[i].PetCardId,
 				UserId:      advertPetList[i].UserId,
 				PetName:     advertPetList[i].PetName,
-				MainPhoto:   strings.Split(advertPetList[i].MainPhoto, ", ")[0],
+				MainPhoto:   strings.Split(advertPetList[i].MainPhoto[1:len(advertPetList[i].MainPhoto)-1], ",")[0],
 				Price:       advertPetList[i].Price,
 				Description: advertPetList[i].Description,
 				City:        advertPetList[i].City,
@@ -550,7 +550,7 @@ func (h *Handler) getAuthAllAdverts(c *gin.Context) {
 				PetCardId:   advertPetList[i].PetCardId,
 				UserId:      advertPetList[i].UserId,
 				PetName:     advertPetList[i].PetName,
-				MainPhoto:   strings.Split(advertPetList[i].MainPhoto, ", ")[0],
+				MainPhoto:   strings.Split(advertPetList[i].MainPhoto[1:len(advertPetList[i].MainPhoto)-1], ",")[0],
 				Price:       advertPetList[i].Price,
 				Description: advertPetList[i].Description,
 				City:        advertPetList[i].City,
@@ -622,15 +622,17 @@ func (h *Handler) getFullAdvert(c *gin.Context) {
 	}
 
 	var photos []PhotoResponse
-	originalPhoto := strings.Split(advert.Photo, ", ")
-	thumbnailPhoto := strings.Split(advert.ThumbnailPhoto, ", ")
-	for j := 0; j < len(originalPhoto) || j < len(thumbnailPhoto); j++ {
-		photos = append(photos, PhotoResponse{})
-		if j < len(thumbnailPhoto) {
-			photos[j].ThumbnailPhoto = strings.TrimSpace(thumbnailPhoto[j])
-		}
-		if j < len(originalPhoto) {
-			photos[j].Photo = strings.TrimSpace(originalPhoto[j])
+	if len(advert.Photo) > 5 && len(advert.ThumbnailPhoto) > 5 {
+		originalPhoto := strings.Split(advert.Photo[1:len(advert.Photo)-1], ",")
+		thumbnailPhoto := strings.Split(advert.ThumbnailPhoto[1:len(advert.ThumbnailPhoto)-1], ",")
+		for j := 0; j < len(originalPhoto) || j < len(thumbnailPhoto); j++ {
+			photos = append(photos, PhotoResponse{})
+			if j < len(thumbnailPhoto) {
+				photos[j].ThumbnailPhoto = strings.TrimSpace(thumbnailPhoto[j])
+			}
+			if j < len(originalPhoto) {
+				photos[j].Photo = strings.TrimSpace(originalPhoto[j])
+			}
 		}
 	}
 	resp := AdvertResponse{
@@ -738,15 +740,17 @@ func (h *Handler) getAuthFullAdvert(c *gin.Context) {
 	}
 
 	var photos []PhotoResponse
-	originalPhoto := strings.Split(advert.Photo, ", ")
-	thumbnailPhoto := strings.Split(advert.ThumbnailPhoto, ", ")
-	for j := 0; j < len(originalPhoto) || j < len(thumbnailPhoto); j++ {
-		photos = append(photos, PhotoResponse{})
-		if j < len(thumbnailPhoto) {
-			photos[j].ThumbnailPhoto = strings.TrimSpace(thumbnailPhoto[j])
-		}
-		if j < len(originalPhoto) {
-			photos[j].Photo = strings.TrimSpace(originalPhoto[j])
+	if len(advert.Photo) > 5 && len(advert.ThumbnailPhoto) > 5 {
+		originalPhoto := strings.Split(advert.Photo[1:len(advert.Photo)-1], ",")
+		thumbnailPhoto := strings.Split(advert.ThumbnailPhoto[1:len(advert.ThumbnailPhoto)-1], ",")
+		for j := 0; j < len(originalPhoto) || j < len(thumbnailPhoto); j++ {
+			photos = append(photos, PhotoResponse{})
+			if j < len(thumbnailPhoto) {
+				photos[j].ThumbnailPhoto = strings.TrimSpace(thumbnailPhoto[j])
+			}
+			if j < len(originalPhoto) {
+				photos[j].Photo = strings.TrimSpace(originalPhoto[j])
+			}
 		}
 	}
 

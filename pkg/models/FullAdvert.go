@@ -24,7 +24,7 @@ type FullAdvert struct {
 	PetTypeName    string    `json:"petType" db:"pet_type"`
 	BreedId        int       `json:"breedID" db:"breed_id"`
 	BreedName      string    `json:"breed" db:"breed_name"`
-	Photo          string    `json:"photo" db:"photo"`
+	Photo          string    `json:"photo" db:"origin_photo"`
 	ThumbnailPhoto string    `json:"thumbnailPhoto" db:"thumbnail_photo"`
 	BirthDate      time.Time `json:"birthDate" db:"birth_date"`
 	Male           bool      `json:"male" db:"male"`

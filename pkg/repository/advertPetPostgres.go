@@ -140,7 +140,7 @@ func (a AdvertPetPostgres) GetFullAdvert(id int) (advert models.FullAdvert, err 
 
 	query := fmt.Sprintf("SELECT ap.id, ap.pet_card_id, ap.user_id, ap.price, ap.description, ap.city_id, "+
 		"ap.district_id, ap.chat, ap.phone, ap.status, ap.publication, pc.pet_name, pc.pet_type_id, pt.pet_type, "+
-		"pc.breed_id, br.breed_name, pc.photo, pc.thumbnail_photo, pc.birth_date, pc.male, CASE pc.male WHEN True THEN 'Мальчик' WHEN "+
+		"pc.breed_id, br.breed_name, pc.origin_photo, pc.thumbnail_photo, pc.birth_date, pc.male, CASE pc.male WHEN True THEN 'Мальчик' WHEN "+
 		"False THEN 'Девочка' END AS gender, pc.color, pc.care, pc.pet_character, pc.pedigree, pc.sterilization, "+
 		"pc.vaccinations, ct.city, ds.district FROM %s ap INNER JOIN pet_card pc ON ap.pet_card_id = pc.id INNER "+
 		"JOIN pet_type pt ON pc.pet_type_id = pt.id INNER JOIN breed br ON pc.breed_id = br.id INNER JOIN city ct ON "+
