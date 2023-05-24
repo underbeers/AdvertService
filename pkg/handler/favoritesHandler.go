@@ -52,7 +52,7 @@ func (h *Handler) addFavorites(c *gin.Context) {
 	if input.Type == "advert_id" {
 
 		/*Проверка, что такой advert pet id существует*/
-		advert, err := h.services.AdvertPet.GetFullAdvert(input.Id)
+		_, err := h.services.AdvertPet.GetFullAdvert(input.Id)
 		if err != nil {
 			newErrorResponse(c, http.StatusBadRequest, "incorrect advert pet id")
 			return
