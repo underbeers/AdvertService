@@ -57,10 +57,6 @@ func (h *Handler) addFavorites(c *gin.Context) {
 			newErrorResponse(c, http.StatusBadRequest, "incorrect advert pet id")
 			return
 		}
-		if advert.UserId == input.UserId {
-			newErrorResponse(c, http.StatusBadRequest, "you can't add your own advert to favorites")
-			return
-		}
 
 	}
 
