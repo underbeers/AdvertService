@@ -288,13 +288,17 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 	}
 
 	for i := 0; i < len(advertPetList); i++ {
+		mainPhoto := strings.Split(advertPetList[i].MainPhoto[1:len(advertPetList[i].MainPhoto)-1], ",")
+		if len(mainPhoto) > 1 {
+			mainPhoto = mainPhoto[1:]
+		}
 		resp.AdvertsResponse = append(resp.AdvertsResponse,
 			AdvertsResponse{
 				Id:          advertPetList[i].Id,
 				PetCardId:   advertPetList[i].PetCardId,
 				UserId:      advertPetList[i].UserId,
 				PetName:     advertPetList[i].PetName,
-				MainPhoto:   strings.Split(advertPetList[i].MainPhoto[1:len(advertPetList[i].MainPhoto)-1], ",")[0],
+				MainPhoto:   mainPhoto[0],
 				Price:       advertPetList[i].Price,
 				Description: advertPetList[i].Description,
 				City:        advertPetList[i].City,
@@ -543,6 +547,10 @@ func (h *Handler) getAuthAllAdverts(c *gin.Context) {
 				break
 			}
 		}
+		mainPhoto := strings.Split(advertPetList[i].MainPhoto[1:len(advertPetList[i].MainPhoto)-1], ",")
+		if len(mainPhoto) > 1 {
+			mainPhoto = mainPhoto[1:]
+		}
 
 		resp.AdvertsResponse = append(resp.AdvertsResponse,
 			AdvertsResponse{
@@ -550,7 +558,7 @@ func (h *Handler) getAuthAllAdverts(c *gin.Context) {
 				PetCardId:   advertPetList[i].PetCardId,
 				UserId:      advertPetList[i].UserId,
 				PetName:     advertPetList[i].PetName,
-				MainPhoto:   strings.Split(advertPetList[i].MainPhoto[1:len(advertPetList[i].MainPhoto)-1], ",")[0],
+				MainPhoto:   mainPhoto[0],
 				Price:       advertPetList[i].Price,
 				Description: advertPetList[i].Description,
 				City:        advertPetList[i].City,
@@ -625,6 +633,13 @@ func (h *Handler) getFullAdvert(c *gin.Context) {
 	if len(advert.Photo) > 5 && len(advert.ThumbnailPhoto) > 5 {
 		originalPhoto := strings.Split(advert.Photo[1:len(advert.Photo)-1], ",")
 		thumbnailPhoto := strings.Split(advert.ThumbnailPhoto[1:len(advert.ThumbnailPhoto)-1], ",")
+		//Если фото добавлено, то не учитываем дефолтное фото
+		if len(originalPhoto) > 1 {
+			originalPhoto = originalPhoto[1:]
+		}
+		if len(thumbnailPhoto) > 1 {
+			thumbnailPhoto = thumbnailPhoto[1:]
+		}
 		for j := 0; j < len(originalPhoto) || j < len(thumbnailPhoto); j++ {
 			photos = append(photos, PhotoResponse{})
 			if j < len(thumbnailPhoto) {
@@ -743,6 +758,13 @@ func (h *Handler) getAuthFullAdvert(c *gin.Context) {
 	if len(advert.Photo) > 5 && len(advert.ThumbnailPhoto) > 5 {
 		originalPhoto := strings.Split(advert.Photo[1:len(advert.Photo)-1], ",")
 		thumbnailPhoto := strings.Split(advert.ThumbnailPhoto[1:len(advert.ThumbnailPhoto)-1], ",")
+		//Если фото добавлено, то не учитываем дефолтное фото
+		if len(originalPhoto) > 1 {
+			originalPhoto = originalPhoto[1:]
+		}
+		if len(thumbnailPhoto) > 1 {
+			thumbnailPhoto = thumbnailPhoto[1:]
+		}
 		for j := 0; j < len(originalPhoto) || j < len(thumbnailPhoto); j++ {
 			photos = append(photos, PhotoResponse{})
 			if j < len(thumbnailPhoto) {
